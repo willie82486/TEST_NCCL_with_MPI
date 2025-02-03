@@ -5,7 +5,8 @@
 #include <cuda_runtime.h>
 
 #define RANK_PER_NODE 8
-
+#define PEER0 0
+#define PEER1 14
 // Helper macro to check CUDA errors
 #define CHECK_CUDA(call)                                                     \
   do {                                                                       \
@@ -75,16 +76,16 @@ int main(int argc, char* argv[]) {
     CHECK_CUDA(cudaStreamCreate(&stream));
 
 
-    if (world_rank == 0) {
-        int peer = 1;
+    if (world_rank == PEER0) {
+        int peer = PEER1;
         CHECK_NCCL(ncclSend((const void*)d_sendbuff,
                             N, /*count*/
                             ncclFloat,
                             peer, /* dest rank */
                             comm,
                             stream));
-    } else if (world_rank == 1) {
-        int peer = 0;
+    } else if (world_rank == PEER1) {
+        int peer = PEER0;
         CHECK_NCCL(ncclRecv((void*)d_recvbuff,
                             N,
                             ncclFloat,
@@ -95,13 +96,13 @@ int main(int argc, char* argv[]) {
 
     CHECK_CUDA(cudaStreamSynchronize(stream));
 
-    if (world_rank == 1) {
+    if (world_rank == PEER1) {
         float* h_result = (float*)malloc(N * sizeof(float));
         CHECK_CUDA(cudaMemcpy(h_result, d_recvbuff, N*sizeof(float),
-                              cudaMemcpyDeviceToHost));
+                            	cudaMemcpyDeviceToHost));
 
-        printf("Rank 1 received data: %f, %f, %f ...\n",
-               h_result[0], h_result[1], h_result[2]);
+        printf("Node %d _ Rank %d received data: %f, %f, %f ...\n",
+            	PEER1 / RANK_PER_NODE, PEER1 % RANK_PER_NODE, h_result[0], h_result[1], h_result[2]);
         free(h_result);
     }
 

@@ -14,8 +14,10 @@ INCLUDE = $(NCCL_PATH)/include
 LIB_PATH = $(NCCL_PATH)/lib64
 
 # Compiler and linker flags
-CXXFLAGS = -O3 -D_GNU_SOURCE -lm -fopenmp -I$(INCLUDE)
-LDFLAGS = -L$(LIB_PATH) -lnccl -lcudart
+# CXXFLAGS = -O3 -D_GNU_SOURCE -lm -fopenmp -I$(INCLUDE)
+CXXFLAGS = -O3 -D_GNU_SOURCE -lm -fopenmp 
+# LDFLAGS = -L$(LIB_PATH) -lnccl -lcudart
+LDFLAGS = -lnccl -lcudart
 
 # Source files
 SRCS := $(wildcard *.cpp)
@@ -48,4 +50,4 @@ clean:
 run:
 # rsync -av ~/test_nccl node1:~/
 # mpirun -np 4 -x NCCL_DEBUG=INFO -x CUDA_VISIBLE_DEVICES=0,1,2,3 ./$(TARGET)
-	mpirun -np 4 -bind-to none --map-by ppr:2:node --hostfile Hostfile ./$(TARGET)
+	mpirun -np 16 -bind-to none --map-by ppr:8:node --hostfile Hostfile ./$(TARGET)
