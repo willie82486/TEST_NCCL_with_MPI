@@ -5,7 +5,7 @@ This program demonstrates peer-to-peer communication between GPUs across multipl
 ## The program follows these key steps:
 
 1. MPI Initialization:\
-  - Initializes the MPI environment, retrieves the world rank and size.
+  - Initializes the MPI environment, and retrieves the world rank and size.
     
 2. NCCL Unique ID Handling:\
   - Rank 0 generates an NCCL unique ID, which is broadcasted to all other ranks.
